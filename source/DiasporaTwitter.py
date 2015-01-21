@@ -20,7 +20,11 @@ postDBfn = ':memory:'
 
 # - Diaspora - #
 
-diasCon = diaspy.connection.Connection(pod=diasPod,username=diasUsername,password=diasPassword)
+diasCon = diaspy.connection.Connection(
+    pod=diasPod,
+    username=diasUsername,
+    password=diasPassword
+)
 
 
 diasCon.login()
