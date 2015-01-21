@@ -3,11 +3,16 @@
 import diaspy
 import twitter
 
+import sqlite3
+
 # --- Configuraiton --- #
 
 # Import connection info/logins
 
 from DTLconfig import *
+
+# Database filename/location
+postDBfn = ':memory:'
 
 # --- Code --- #
 
@@ -33,19 +38,68 @@ twtCon = twitter.Api(
 ) 
 print twtCon.VerifyCredentials()  #confirm working
 
+# - Post database/cache - #
+
+dbCon = sqlite3.connect( postDBfn )
+dbCur = dbCon.cursor()
+
+
 # -- Read posts -- #
 
 statuses = twtCon.GetUserTimeline(twtUser)
 # Display them
 print [s.text for s in statuses]
+# Store a test instance
+s = statuses[0]
+r = ( s.created_at_in_seconds, s.text )
 
-# - Store posts into internal database - #
+# -- Store posts into internal database -- #
 
-# - Deduplicate - #
+# - Create database if it doesn't exist - #
 
-# -- Post new posts to Diaspora -- #
+# Does table exist?
+
+tableExistsRes = dbCur.execute("""
+     SELECT name FROM sqlite_master WHERE type='table' AND name='posts'
+""")
+tableExists = len( tableExistsRes.fetchall() ) > 0
+
+# If not, create
+if not tableExists:
+    dbCur.execute("""CREATE TABLE posts
+       (created_at_in_seconds INTEGER PRIMARY KEY, 
+       text VARCHAR(200) )  
+    """)
+
+# - Loop over elements. For each element:
+
+for s in statuses:
+    r = ( s.created_at_in_seconds, s.text )
 
 
-#diasStream.post('Testing the diaspy linkage')
+    # 1) Confirm element doesn't already exist in DB 
+
+    # Pull all posts that occurred that second
+
+    textTimeMatches = dbCur.execute(
+        "SELECT text FROM posts WHERE created_at_in_seconds=?",
+        [ r[0] ]
+    ).fetchall()
+
+    # If there were any matches based on time, check for matches based on text
+    if len( textTimeMatches ) > 0:
+        textTimeMatches[0][0] == r[1]
+
+
+
+        # 2) Store to DB if unique
+        
+        dbCur.execute("Insert INTO posts VALUES (?,?)",r) 
+        dbCur.commit()
+        
+        # 3) Post to Diaspora if unique
+
+
+        #diasStream.post('Testing the diaspy linkage')
 
 
