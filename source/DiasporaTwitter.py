@@ -76,11 +76,9 @@ if not tableExists:
 for s in statuses:
     r = ( s.created_at_in_seconds, s.text )
 
-
     # 1) Confirm element doesn't already exist in DB 
 
     # Pull all posts that occurred that second
-
     textTimeMatches = dbCur.execute(
         "SELECT text FROM posts WHERE created_at_in_seconds=?",
         [ r[0] ]
@@ -88,18 +86,12 @@ for s in statuses:
 
     # If there were any matches based on time, check for matches based on text
     if len( textTimeMatches ) > 0:
-        textTimeMatches[0][0] == r[1]
-
-
-
+        textTimeMatches[0][0] == r[1] #! Fix this
+    else: # If not a duplicate
         # 2) Store to DB if unique
-        
         dbCur.execute("Insert INTO posts VALUES (?,?)",r) 
         dbCur.commit()
-        
         # 3) Post to Diaspora if unique
-
-
-        #diasStream.post('Testing the diaspy linkage')
+        diasStream.post(s.text)
 
 
