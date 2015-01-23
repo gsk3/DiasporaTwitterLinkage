@@ -2,7 +2,6 @@
 
 import diaspy
 import twitter
-
 import sqlite3
 
 # --- Configuraiton --- #
@@ -53,9 +52,6 @@ dbCur = dbCon.cursor()
 statuses = twtCon.GetUserTimeline(twtUser)
 # Display them
 print [s.text for s in statuses]
-# Store a test instance
-s = statuses[0]
-r = ( s.created_at_in_seconds, s.text )
 
 # -- Store posts into internal database -- #
 
@@ -87,15 +83,17 @@ for s in statuses:
         "SELECT text FROM posts WHERE created_at_in_seconds=?",
         [ r[0] ]
     ).fetchall()
-
-    # If there were any matches based on time, check for matches based on text
-    if len( textTimeMatches ) > 0:
-        textTimeMatches[0][0] == r[1] #! Fix this
-    else: # If not a duplicate
+    # Assume only one post can happen in a given second
+    # If not a duplicate of a post already sent to Diaspora, save it and post it
+    if len( textTimeMatches ) == 0:
+	print('.')
         # 2) Store to DB if unique
         dbCur.execute("Insert INTO posts VALUES (?,?)",r) 
-        dbCur.commit()
+        dbCon.commit()
         # 3) Post to Diaspora if unique
         diasStream.post(s.text)
+
+# Finish up
+dbCon.close()
 
 
