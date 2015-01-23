@@ -23,3 +23,8 @@ Python script to post a single user's Twitter posts to Diaspora, designed to be 
         Test it
             python DTLconfig.py
     Set up cron to run the script once a day
+        sudo crontab -e
+        Then insert the following into your crontab: 
+            ## Diaspora-Twitter Linkage - Every 5 minutes
+            5,10,15,20,25,30,35,40,45,50,55 * * * *         python /path/to/DTL/source/DiasporaTwitter.py
+
