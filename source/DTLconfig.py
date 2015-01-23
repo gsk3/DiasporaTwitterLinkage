@@ -11,3 +11,6 @@ twtAccess_token_secret = ''
 
 # Username                                                                      
 twtUser = ''
+
+# Database filename/location
+postDBfn = ':memory:'
