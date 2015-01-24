@@ -12,5 +12,14 @@ twtAccess_token_secret = ''
 # Username                                                                      
 twtUser = ''
 
+# - SQLite - #             
+
 # Database filename/location
 postDBfn = ':memory:'
+
+# - Settings - #                                                                
+
+# Text to append before/after each post (e.g. to add a hash tag to each)        
+appendText = ''
+prependText = ''
+
